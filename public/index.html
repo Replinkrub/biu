@@ -5,62 +5,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biu — Registro Comercial Assistido</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-    header { background: #1a1a2e; color: #fff; padding: 1rem 0; margin-bottom: 1rem; }
-    header h1 { font-size: 1.5rem; }
-    header p { font-size: .85rem; opacity: .7; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e}
+    .container{max-width:1300px;margin:0 auto;padding:1rem}
+    header{background:#1a1a2e;color:#fff;padding:.8rem 0;margin-bottom:1rem}
+    header h1{font-size:1.3rem;display:flex;align-items:center;gap:.5rem}
+    header p{font-size:.78rem;opacity:.7}
 
-    .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
-    .toolbar input, .toolbar select, .toolbar button { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 6px; font-size: .9rem; }
-    .toolbar input { flex: 1; min-width: 200px; }
-    .toolbar button { background: #1a1a2e; color: #fff; cursor: pointer; border: none; }
-    .toolbar button:hover { background: #16213e; }
-    .toolbar button.new { background: #0f3460; }
+    .toolbar{display:flex;gap:.4rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
+    .toolbar input,.toolbar select,.toolbar button{padding:.45rem .65rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem}
+    .toolbar input{flex:1;min-width:180px}
+    .toolbar button{background:#1a1a2e;color:#fff;cursor:pointer;border:none;white-space:nowrap}
+    .toolbar button:hover{background:#0f3460}
+    .toolbar button.primary{background:#0f3460;font-weight:600}
+    .toolbar button.import{background:#16213e}
 
-    .stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .stat { background: #fff; padding: .5rem 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
-    .stat .num { font-size: 1.3rem; font-weight: bold; }
-    .stat .label { font-size: .75rem; color: #666; }
+    .stats{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap}
+    .stat{background:#fff;padding:.4rem .9rem;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:.85rem}
+    .stat b{font-size:1.1rem}
 
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
-    th, td { padding: .6rem .8rem; text-align: left; font-size: .85rem; border-bottom: 1px solid #eee; }
-    th { background: #f8f8f8; font-weight: 600; }
-    tr:hover { background: #f0f4ff; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .75rem; }
-    .badge-rascunho { background: #ffeaa7; color: #7d6608; }
-    .badge-validado { background: #d4edda; color: #155724; }
-    .badge-registrado { background: #cce5ff; color: #004085; }
-    .badge-descartado { background: #f5c6cb; color: #721c24; }
-    .badge-em_espera { background: #e2e3e5; color: #383d41; }
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    th,td{padding:.5rem .7rem;text-align:left;font-size:.82rem;border-bottom:1px solid #eee}
+    th{background:#f8f9fa;font-weight:600;position:sticky;top:0}
+    tr:hover{background:#f0f4ff}
+    .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.72rem}
+    .bg-rascunho{background:#ffeaa7;color:#7d6608}
+    .bg-validado,.bg-registrado{background:#d4edda;color:#155724}
+    .bg-descartado{background:#f5c6cb;color:#721c24}
+    .bg-em_espera,.bg-aguardando_toni{background:#e2e3e5;color:#383d41}
+    .actions-cell{white-space:nowrap}
+    .actions-cell button{padding:2px 7px;margin:1px;border-radius:4px;border:1px solid #ccc;cursor:pointer;font-size:.72rem;background:#fff}
+    .actions-cell button:hover{background:#eee}
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; justify-content: center; align-items: flex-start; padding-top: 2rem; overflow-y: auto; }
-    .modal-overlay.active { display: flex; }
-    .modal { background: #fff; border-radius: 10px; padding: 1.5rem; width: 95%; max-width: 700px; max-height: 85vh; overflow-y: auto; }
-    .modal h2 { margin-bottom: 1rem; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-    .form-grid .full { grid-column: 1 / -1; }
-    .form-grid label { font-size: .8rem; font-weight: 600; display: block; margin-bottom: .2rem; }
-    .form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: .4rem .5rem; border: 1px solid #ccc; border-radius: 5px; font-size: .85rem; }
-    .form-grid textarea { min-height: 60px; resize: vertical; }
-    .form-actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; }
-    .form-actions button { padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-size: .9rem; border: none; }
-    .form-actions .save { background: #0f3460; color: #fff; }
-    .form-actions .cancel { background: #eee; color: #333; }
-    .form-actions .delete { background: #dc3545; color: #fff; }
+    /* Modal */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:flex-start;padding-top:1rem;overflow-y:auto}
+    .overlay.on{display:flex}
+    .modal{background:#fff;border-radius:10px;padding:1.3rem;width:95%;max-width:780px;max-height:90vh;overflow-y:auto}
+    .modal h2{margin-bottom:.8rem;font-size:1.1rem}
+    .fg{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+    .fg .fw{grid-column:1/-1}
+    .fg label{font-size:.75rem;font-weight:600;display:block;margin-bottom:.15rem;color:#444}
+    .fg input,.fg select,.fg textarea{width:100%;padding:.35rem .45rem;border:1px solid #ccc;border-radius:5px;font-size:.82rem;font-family:inherit}
+    .fg textarea{min-height:50px;resize:vertical}
+    .btns{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.8rem}
+    .btns button{padding:.45rem 1rem;border-radius:6px;cursor:pointer;font-size:.85rem;border:none}
+    .btns .save{background:#0f3460;color:#fff}
+    .btns .cancel{background:#eee;color:#333}
+    .btns .danger{background:#dc3545;color:#fff}
 
-    .empty { text-align: center; padding: 3rem; color: #999; }
-    .actions-cell { white-space: nowrap; }
-    .actions-cell button { padding: 3px 8px; margin: 1px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-size: .75rem; background: #fff; }
-    .actions-cell button:hover { background: #eee; }
+    /* Autocomplete */
+    .ac-wrap{position:relative}
+    .ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:0 0 6px 6px;max-height:180px;overflow-y:auto;z-index:10;display:none}
+    .ac-drop.show{display:block}
+    .ac-item{padding:.4rem .6rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid #eee}
+    .ac-item:hover{background:#f0f4ff}
+    .ac-item small{color:#888;display:block;font-size:.7rem}
+
+    /* File upload */
+    .upload-zone{border:2px dashed #ccc;border-radius:8px;padding:1rem;text-align:center;cursor:pointer;margin:.4rem 0;transition:.2s}
+    .upload-zone:hover,.upload-zone.dragover{border-color:#0f3460;background:#f0f4ff}
+    .upload-zone p{font-size:.8rem;color:#666}
+    .file-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+    .file-tag{display:flex;align-items:center;gap:.3rem;background:#e8f0fe;padding:.2rem .5rem;border-radius:4px;font-size:.75rem}
+    .file-tag button{background:none;border:none;cursor:pointer;color:#dc3545;font-weight:bold;font-size:.9rem;line-height:1}
+    .file-tag img{width:16px;height:16px;object-fit:cover;border-radius:2px}
+    .empty{text-align:center;padding:3rem;color:#999}
   </style>
 </head>
 <body>
 <header>
   <div class="container">
     <h1>📋 Biu — Registro Comercial Assistido</h1>
-    <p>CRUD v1 · Intake Operacional da ARCO</p>
+    <p>Intake operacional · Upload de arquivos · Base de clientes integrada</p>
   </div>
 </header>
 
@@ -68,9 +84,9 @@
   <div class="stats" id="stats"></div>
 
   <div class="toolbar">
-    <input type="text" id="search" placeholder="Buscar por cliente, resumo, observação..." oninput="loadRCAs()">
+    <input type="text" id="search" placeholder="🔍 Buscar RCA..." oninput="loadRCAs()">
     <select id="filterStatus" onchange="loadRCAs()">
-      <option value="">Todos os status</option>
+      <option value="">Status</option>
       <option value="rascunho">Rascunho</option>
       <option value="aguardando_toni">Aguardando Toni</option>
       <option value="validado">Validado</option>
@@ -79,7 +95,7 @@
       <option value="descartado">Descartado</option>
     </select>
     <select id="filterCategoria" onchange="loadRCAs()">
-      <option value="">Todas as categorias</option>
+      <option value="">Categoria</option>
       <option value="prospeccao">Prospecção</option>
       <option value="pedido">Pedido</option>
       <option value="logistica">Logística</option>
@@ -88,206 +104,255 @@
       <option value="reclamacao">Reclamação</option>
       <option value="decisao">Decisão</option>
     </select>
-    <button class="new" onclick="openCreate()">+ Novo RCA</button>
+    <button class="primary" onclick="openCreate()">+ Novo RCA</button>
+    <button class="import" onclick="importClientes()">📥 Importar Clientes</button>
   </div>
 
   <table>
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Cliente</th>
-        <th>Resumo</th>
-        <th>Categoria</th>
-        <th>Status</th>
-        <th>Resp.</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Data</th><th>Cliente</th><th>Resumo</th><th>Cat</th><th>Status</th><th>Arq</th><th>Resp</th><th>Ações</th></tr></thead>
     <tbody id="tableBody"></tbody>
   </table>
   <div class="empty" id="emptyMsg" style="display:none">Nenhum RCA encontrado.</div>
 </div>
 
 <!-- Modal -->
-<div class="modal-overlay" id="modalOverlay">
+<div class="overlay" id="overlay">
   <div class="modal">
     <h2 id="modalTitle">Novo RCA</h2>
-    <form id="rcaForm" class="form-grid">
+    <form id="form" class="fg" onsubmit="return false">
       <input type="hidden" id="rcaId">
       <div><label>Origem *</label><input id="origem" required></div>
       <div><label>Canal *</label><input id="canal" required></div>
       <div><label>Formato entrada</label><input id="formato_entrada"></div>
-      <div><label>Cliente</label><input id="cliente" placeholder="ou 'cliente não identificado'"></div>
+      <div class="ac-wrap">
+        <label>Cliente (buscar na base)</label>
+        <input id="cliente" placeholder="Digite para buscar..." autocomplete="off" oninput="searchClientes(this.value)" onfocus="searchClientes(this.value)">
+        <div class="ac-drop" id="acDrop"></div>
+      </div>
+      <input type="hidden" id="clienteId">
       <div><label>Contato</label><input id="contato"></div>
-      <div><label>CNPJ</label><input id="cnpj" placeholder="XX.XXX.XXX/XXXX-XX"></div>
+      <div><label>CNPJ</label><input id="cnpj"></div>
       <div><label>Segmento</label><input id="segmento"></div>
       <div><label>Cidade</label><input id="cidade"></div>
       <div><label>Representada</label><input id="representada"></div>
       <div><label>Produto citado</label><input id="produto_citado"></div>
-      <div class="full"><label>Entrada bruta *</label><textarea id="entrada_bruta" rows="3" required></textarea></div>
-      <div class="full"><label>Resumo *</label><textarea id="resumo" rows="2" required></textarea></div>
-      <div><label>Categoria *</label><select id="categoria" required>
-        <option value="atendimento">Atendimento</option>
-        <option value="prospeccao">Prospecção</option>
-        <option value="pedido">Pedido</option>
-        <option value="logistica">Logística</option>
-        <option value="financeiro">Financeiro</option>
-        <option value="reclamacao">Reclamação</option>
-        <option value="decisao">Decisão</option>
-      </select></div>
-      <div><label>Status *</label><select id="status" required>
-        <option value="rascunho">Rascunho</option>
-        <option value="aguardando_toni">Aguardando Toni</option>
-        <option value="validado">Validado</option>
-        <option value="registrado">Registrado</option>
-        <option value="em_espera">Em espera</option>
-        <option value="descartado">Descartado</option>
-      </select></div>
+      <div class="fw"><label>Entrada bruta *</label><textarea id="entrada_bruta" rows="3" required></textarea></div>
+      <div class="fw"><label>Resumo *</label><textarea id="resumo" rows="2" required></textarea></div>
+      <div><label>Categoria *</label><select id="categoria" required><option value="atendimento">Atendimento</option><option value="prospeccao">Prospecção</option><option value="pedido">Pedido</option><option value="logistica">Logística</option><option value="financeiro">Financeiro</option><option value="reclamacao">Reclamação</option><option value="decisao">Decisão</option></select></div>
+      <div><label>Status *</label><select id="status" required><option value="rascunho">Rascunho</option><option value="aguardando_toni">Aguardando Toni</option><option value="validado">Validado</option><option value="registrado">Registrado</option><option value="em_espera">Em espera</option><option value="descartado">Descartado</option></select></div>
       <div><label>Próxima ação *</label><input id="proxima_acao" required></div>
       <div><label>Responsável *</label><input id="responsavel" required></div>
-      <div><label>Tipo *</label><select id="tipo" required>
-        <option value="tarefa">Tarefa</option>
-        <option value="decisao">Decisão</option>
-        <option value="projeto">Projeto</option>
-        <option value="espera">Espera</option>
-        <option value="descarte">Descarte</option>
-        <option value="demanda_tecnica">Demanda técnica</option>
-      </select></div>
+      <div><label>Tipo *</label><select id="tipo" required><option value="tarefa">Tarefa</option><option value="decisao">Decisão</option><option value="projeto">Projeto</option><option value="espera">Espera</option><option value="descarte">Descarte</option><option value="demanda_tecnica">Demanda técnica</option></select></div>
       <div><label>Destino *</label><input id="destino" required></div>
-      <div><label>Sensibilidade</label><select id="sensibilidade">
-        <option value="baixa">Baixa</option>
-        <option value="media" selected>Média</option>
-        <option value="alta">Alta</option>
-      </select></div>
-      <div><label>Urgência</label><select id="urgencia">
-        <option value="baixa">Baixa</option>
-        <option value="media" selected>Média</option>
-        <option value="alta">Alta</option>
-      </select></div>
+      <div><label>Sensibilidade</label><select id="sensibilidade"><option value="baixa">Baixa</option><option value="media" selected>Média</option><option value="alta">Alta</option></select></div>
+      <div><label>Urgência</label><select id="urgencia"><option value="baixa">Baixa</option><option value="media" selected>Média</option><option value="alta">Alta</option></select></div>
       <div><label>Prazo</label><input type="date" id="prazo"></div>
-      <div><label><input type="checkbox" id="precisa_aprovacao_toni"> Precisa aprovação do Toni</label></div>
-      <div><label>Caso relacionado (ID)</label><input id="caso_relacionado_id"></div>
-      <div class="full"><label>Pendência</label><textarea id="pendencia" rows="1"></textarea></div>
-      <div class="full"><label>Bloqueio atual</label><textarea id="bloqueio_atual" rows="1"></textarea></div>
-      <div class="full"><label>Observação</label><textarea id="observacao" rows="2"></textarea></div>
+      <div><label><input type="checkbox" id="precisa_aprovacao_toni"> Aprovação Toni</label></div>
+      <div><label>Caso relacionado</label><input id="caso_relacionado_id"></div>
+      <div class="fw"><label>Pendência</label><textarea id="pendencia" rows="1"></textarea></div>
+      <div class="fw"><label>Bloqueio atual</label><textarea id="bloqueio_atual" rows="1"></textarea></div>
+      <div class="fw"><label>Observação</label><textarea id="observacao" rows="2"></textarea></div>
+
+      <!-- File upload -->
+      <div class="fw">
+        <label>📎 Arquivos (imagens, áudios, PDFs)</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <p>📁 Clique ou arraste arquivos aqui</p>
+        </div>
+        <input type="file" id="fileInput" multiple hidden accept="image/*,audio/*,.pdf" onchange="handleFiles(this.files)">
+        <div class="file-list" id="fileList"></div>
+      </div>
     </form>
-    <div class="form-actions">
-      <button class="delete" id="btnDelete" style="display:none" onclick="deleteRCA()">Arquivar</button>
+    <div class="btns">
+      <button class="danger" id="btnDel" style="display:none" onclick="deleteRCA()">🗑 Arquivar</button>
       <button class="cancel" onclick="closeModal()">Cancelar</button>
-      <button class="save" onclick="saveRCA()">Salvar</button>
+      <button class="save" onclick="saveRCA()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
 <script>
 const API = '/api/rcas';
+let uploadedFiles = [];
 
-function statusBadge(s) {
-  const map = { rascunho:'badge-rascunho', validado:'badge-validado', registrado:'badge-registrado', descartado:'badge-descartado', em_espera:'badge-em_espera', aguardando_toni:'badge-rascunho' };
-  return `<span class="badge ${map[s]||''}">${s.replace(/_/g,' ')}</span>`;
+// ==================== RCA CRUD ====================
+
+function badge(s){
+  const m={rascunho:'bg-rascunho',validado:'bg-validado',registrado:'bg-registrado',descartado:'bg-descartado',em_espera:'bg-em_espera',aguardando_toni:'bg-aguardando_toni'};
+  return `<span class="badge ${m[s]||''}">${(s||'').replace(/_/g,' ')}</span>`;
 }
 
-function loadRCAs() {
-  const q = document.getElementById('search').value;
-  const status = document.getElementById('filterStatus').value;
-  const categoria = document.getElementById('filterCategoria').value;
-  const params = new URLSearchParams();
-  if (q) params.set('q', q);
-  if (status) params.set('status', status);
-  if (categoria) params.set('categoria', categoria);
+function loadRCAs(){
+  const q=document.getElementById('search').value;
+  const status=document.getElementById('filterStatus').value;
+  const categoria=document.getElementById('filterCategoria').value;
+  const p=new URLSearchParams();
+  if(q)p.set('q',q);if(status)p.set('status',status);if(categoria)p.set('categoria',categoria);
 
-  fetch(`${API}?${params}`).then(r=>r.json()).then(rows => {
-    const tbody = document.getElementById('tableBody');
-    const empty = document.getElementById('emptyMsg');
-    if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-    empty.style.display='none';
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        <td>${r.data_criacao?.slice(0,16)||''}</td>
-        <td>${r.cliente||'—'}</td>
-        <td>${(r.resumo||'').slice(0,60)}${r.resumo?.length>60?'…':''}</td>
-        <td>${r.categoria||''}</td>
-        <td>${statusBadge(r.status)}</td>
-        <td>${r.responsavel||''}</td>
-        <td class="actions-cell">
-          <button onclick="openView('${r.id}')">Ver</button>
-          <button onclick="openEdit('${r.id}')">Editar</button>
-        </td>
-      </tr>`).join('');
+  fetch(`${API}?${p}`).then(r=>r.json()).then(rows=>{
+    const tb=document.getElementById('tableBody'), em=document.getElementById('emptyMsg');
+    if(!rows.length){tb.innerHTML='';em.style.display='block';return;}
+    em.style.display='none';
+    tb.innerHTML=rows.map(r=>`<tr>
+      <td>${(r.data_criacao||'').slice(0,16)}</td>
+      <td>${r.cliente||'—'}</td>
+      <td>${(r.resumo||'').slice(0,55)}${r.resumo?.length>55?'…':''}</td>
+      <td>${r.categoria||''}</td>
+      <td>${badge(r.status)}</td>
+      <td>${(r.arquivos||[]).length?`📎${r.arquivos.length}`:'—'}</td>
+      <td>${r.responsavel||''}</td>
+      <td class="actions-cell">
+        <button onclick="openEdit('${r.id}')">✏️</button>
+        <button onclick="openView('${r.id}')">👁</button>
+      </td></tr>`).join('');
   });
   loadStats();
 }
 
-function loadStats() {
-  fetch('/api/stats').then(r=>r.json()).then(d => {
-    document.getElementById('stats').innerHTML = `
-      <div class="stat"><div class="num">${d.total}</div><div class="label">Total RCAs</div></div>
-      ${(d.byStatus||[]).map(s=>`<div class="stat"><div class="num">${s.count}</div><div class="label">${s.status.replace(/_/g,' ')}</div></div>`).join('')}`;
+function loadStats(){
+  fetch('/api/stats').then(r=>r.json()).then(d=>{
+    document.getElementById('stats').innerHTML=`
+      <div class="stat">📋 <b>${d.totalRCAs||0}</b> RCAs</div>
+      <div class="stat">👥 <b>${d.totalClientes||0}</b> clientes</div>
+      ${(d.byStatus||[]).map(s=>`<div class="stat"><b>${s.count}</b> ${s.status.replace(/_/g,' ')}</div>`).join('')}`;
   });
 }
 
-function openCreate() {
-  document.getElementById('rcaForm').reset();
-  document.getElementById('rcaId').value = '';
-  document.getElementById('modalTitle').textContent = 'Novo RCA';
-  document.getElementById('btnDelete').style.display = 'none';
-  document.getElementById('modalOverlay').classList.add('active');
+function openCreate(){resetForm();document.getElementById('overlay').classList.add('on');}
+function closeModal(){document.getElementById('overlay').classList.remove('on');}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+function resetForm(){
+  document.getElementById('form').reset();
+  document.getElementById('rcaId').value='';
+  document.getElementById('clienteId').value='';
+  document.getElementById('modalTitle').textContent='Novo RCA';
+  document.getElementById('btnDel').style.display='none';
+  uploadedFiles=[];renderFiles();
 }
 
-function openEdit(id) {
-  fetch(`${API}/${id}`).then(r=>r.json()).then(rca => {
-    document.getElementById('rcaId').value = rca.id;
-    document.getElementById('modalTitle').textContent = `Editar RCA — ${rca.cliente||'sem cliente'}`;
-    document.getElementById('btnDelete').style.display = 'inline-block';
-    const fields = ['origem','canal','formato_entrada','cliente','contato','cnpj','segmento','cidade','representada','produto_citado','entrada_bruta','resumo','proxima_acao','responsavel','destino','pendencia','bloqueio_atual','observacao','prazo','caso_relacionado_id'];
-    fields.forEach(f => { const el = document.getElementById(f); if(el) el.value = rca[f]||''; });
-    document.getElementById('categoria').value = rca.categoria||'atendimento';
-    document.getElementById('status').value = rca.status||'rascunho';
-    document.getElementById('tipo').value = rca.tipo||'tarefa';
-    document.getElementById('sensibilidade').value = rca.sensibilidade||'media';
-    document.getElementById('urgencia').value = rca.urgencia||'media';
-    document.getElementById('precisa_aprovacao_toni').checked = rca.precisa_aprovacao_toni;
-    document.getElementById('modalOverlay').classList.add('active');
+function openEdit(id){
+  fetch(`${API}/${id}`).then(r=>r.json()).then(rca=>{
+    document.getElementById('rcaId').value=rca.id;
+    document.getElementById('modalTitle').textContent=`Editar RCA · ${rca.cliente||'sem cliente'}`;
+    document.getElementById('btnDel').style.display='inline-block';
+    const fields=['origem','canal','formato_entrada','cliente','contato','cnpj','segmento','cidade','representada','produto_citado','entrada_bruta','resumo','proxima_acao','responsavel','destino','pendencia','bloqueio_atual','observacao','prazo','caso_relacionado_id'];
+    fields.forEach(f=>{const el=document.getElementById(f);if(el)el.value=rca[f]||'';});
+    document.getElementById('categoria').value=rca.categoria||'atendimento';
+    document.getElementById('status').value=rca.status||'rascunho';
+    document.getElementById('tipo').value=rca.tipo||'tarefa';
+    document.getElementById('sensibilidade').value=rca.sensibilidade||'media';
+    document.getElementById('urgencia').value=rca.urgencia||'media';
+    document.getElementById('precisa_aprovacao_toni').checked=rca.precisa_aprovacao_toni;
+    uploadedFiles=rca.arquivos||[];renderFiles();
+    document.getElementById('overlay').classList.add('on');
   });
 }
 
-function openView(id) { openEdit(id); }
+function openView(id){openEdit(id);}
 
-function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function getVal(id){return document.getElementById(id)?.value||'';}
 
-function saveRCA() {
-  const id = document.getElementById('rcaId').value;
-  const get = n => document.getElementById(n)?.value||'';
-  const body = {
-    origem: get('origem'), canal: get('canal'), formato_entrada: get('formato_entrada'),
-    entrada_bruta: get('entrada_bruta'), cliente: get('cliente'), contato: get('contato'),
-    cnpj: get('cnpj'), segmento: get('segmento'), cidade: get('cidade'),
-    resumo: get('resumo'), categoria: get('categoria'), produto_citado: get('produto_citado'),
-    representada: get('representada'), status: get('status'), pendencia: get('pendencia'),
-    bloqueio_atual: get('bloqueio_atual'), proxima_acao: get('proxima_acao'),
-    responsavel: get('responsavel'), prazo: get('prazo'), sensibilidade: get('sensibilidade'),
-    urgencia: get('urgencia'), precisa_aprovacao_toni: document.getElementById('precisa_aprovacao_toni').checked,
-    tipo: get('tipo'), destino: get('destino'), observacao: get('observacao'),
-    caso_relacionado_id: get('caso_relacionado_id'),
+function saveRCA(){
+  const id=document.getElementById('rcaId').value;
+  const body={
+    origem:getVal('origem'),canal:getVal('canal'),formato_entrada:getVal('formato_entrada'),
+    entrada_bruta:getVal('entrada_bruta'),cliente:getVal('cliente'),contato:getVal('contato'),
+    cnpj:getVal('cnpj'),segmento:getVal('segmento'),cidade:getVal('cidade'),
+    resumo:getVal('resumo'),categoria:getVal('categoria'),produto_citado:getVal('produto_citado'),
+    representada:getVal('representada'),status:getVal('status'),pendencia:getVal('pendencia'),
+    bloqueio_atual:getVal('bloqueio_atual'),proxima_acao:getVal('proxima_acao'),
+    responsavel:getVal('responsavel'),prazo:getVal('prazo'),sensibilidade:getVal('sensibilidade'),
+    urgencia:getVal('urgencia'),precisa_aprovacao_toni:document.getElementById('precisa_aprovacao_toni').checked,
+    tipo:getVal('tipo'),destino:getVal('destino'),observacao:getVal('observacao'),
+    caso_relacionado_id:getVal('caso_relacionado_id'),arquivos:uploadedFiles,
   };
-
-  const method = id ? 'PUT' : 'POST';
-  const url = id ? `${API}/${id}` : API;
-
-  fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
-    .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
-    .then(() => { closeModal(); loadRCAs(); })
-    .catch(err => alert('Erro: ' + (err.error||'Verifique os campos obrigatórios')));
+  const method=id?'PUT':'POST',url=id?`${API}/${id}`:API;
+  fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.ok?r.json():r.json().then(e=>Promise.reject(e)))
+    .then(()=>{closeModal();loadRCAs();})
+    .catch(err=>alert('Erro: '+(err.error||'Campos obrigatórios')));
 }
 
-function deleteRCA() {
-  const id = document.getElementById('rcaId').value;
-  if (!confirm('Arquivar este RCA? (soft delete — pode ser restaurado)')) return;
-  fetch(`${API}/${id}`, { method:'DELETE' })
-    .then(r => { closeModal(); loadRCAs(); });
+function deleteRCA(){
+  const id=document.getElementById('rcaId').value;
+  if(!confirm('Arquivar este RCA?'))return;
+  fetch(`${API}/${id}`,{method:'DELETE'}).then(()=>{closeModal();loadRCAs();});
 }
 
-document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+// ==================== Client Autocomplete ====================
+
+let acTimer;
+function searchClientes(q){
+  clearTimeout(acTimer);
+  if(!q||q.length<2){document.getElementById('acDrop').classList.remove('show');return;}
+  acTimer=setTimeout(()=>{
+    fetch(`/api/clientes?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(rows=>{
+      const drop=document.getElementById('acDrop');
+      if(!rows.length){drop.classList.remove('show');return;}
+      drop.innerHTML=rows.map(c=>`<div class="ac-item" onclick="selectCliente(${c.id},'${c.nome.replace(/'/g,"\\'")}','${c.cnpj||''}','${c.segmento||''}','${c.cidade||''}','${c.contato||''}')">
+        <strong>${c.nome}</strong>
+        <small>${c.cidade||''} · ${c.segmento||''} · ${c.cnpj||''}</small>
+      </div>`).join('');
+      drop.classList.add('show');
+    });
+  },250);
+}
+
+function selectCliente(id,nome,cnpj,segmento,cidade,contato){
+  document.getElementById('cliente').value=nome;
+  document.getElementById('clienteId').value=id;
+  document.getElementById('cnpj').value=cnpj;
+  document.getElementById('segmento').value=segmento;
+  document.getElementById('cidade').value=cidade;
+  document.getElementById('contato').value=contato;
+  document.getElementById('acDrop').classList.remove('show');
+}
+
+// Close autocomplete on outside click
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('acDrop').classList.remove('show');});
+
+// ==================== File Upload ====================
+
+function handleFiles(files){
+  if(!files||!files.length)return;
+  for(const f of files){
+    const fd=new FormData();fd.append('file',f);
+    fetch('/api/upload',{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
+      uploadedFiles.push(data);renderFiles();
+    }).catch(()=>alert('Erro no upload de '+f.name));
+  }
+}
+
+function renderFiles(){
+  const el=document.getElementById('fileList');
+  el.innerHTML=uploadedFiles.map((f,i)=>`<div class="file-tag">
+    ${f.mimetype?.startsWith('image/')?`<img src="${f.path}" onerror="this.style.display='none'">`:''}
+    ${f.mimetype?.startsWith('audio/')?'🎵':f.mimetype?.startsWith('image/')?'🖼':'📄'}
+    <a href="${f.path}" target="_blank" style="font-size:.75rem">${f.filename||f.path?.split('/').pop()}</a>
+    <button onclick="uploadedFiles.splice(${i},1);renderFiles()">×</button>
+  </div>`).join('');
+}
+
+// Drag & drop
+const zone=document.getElementById('uploadZone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');handleFiles(e.dataTransfer.files);});
+
+// ==================== Client Import ====================
+
+function importClientes(){
+  const path=prompt('Caminho da planilha MERCOS:\n\nEx: /home/arco/Empresas/REPLINK/REPLINK-CONTROL/context/arco/Arquivo Arco/Carteira detalhada de clientes.xlsx');
+  if(!path)return;
+  fetch('/api/clientes/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filepath:path})})
+    .then(r=>r.json()).then(d=>{
+      alert(`✅ ${d.imported} clientes importados de ${d.total} linhas.\nBase total: ${d.totalBase} clientes.`);
+      loadStats();
+    }).catch(err=>alert('❌ Erro: '+err.message));
+}
+
+// ==================== Init ====================
 loadRCAs();
 </script>
 </body>

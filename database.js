@@ -49,7 +49,24 @@ db.exec(`
     prazo_maximo_parceiro TEXT,
     financeiro_acerto_pendente TEXT,
     dependencia_externa TEXT,
+    arquivos TEXT DEFAULT '[]',
     deleted INTEGER NOT NULL DEFAULT 0
+  );
+`);
+
+// Create clientes table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS clientes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    cnpj TEXT,
+    segmento TEXT,
+    cidade TEXT,
+    contato TEXT,
+    telefone TEXT,
+    status TEXT DEFAULT 'ativo',
+    origem TEXT DEFAULT 'MERCOS',
+    data_importacao TEXT DEFAULT (datetime('now','localtime'))
   );
 `);
 
@@ -60,6 +77,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_rcas_data ON rcas(data_criacao);
   CREATE INDEX IF NOT EXISTS idx_rcas_cliente ON rcas(cliente);
   CREATE INDEX IF NOT EXISTS idx_rcas_deleted ON rcas(deleted);
+  CREATE INDEX IF NOT EXISTS idx_clientes_nome ON clientes(nome);
+  CREATE INDEX IF NOT EXISTS idx_clientes_cidade ON clientes(cidade);
 `);
 
 const stmts = {
@@ -69,13 +88,13 @@ const stmts = {
       bloqueio_atual, proxima_acao, responsavel, prazo, sensibilidade, urgencia,
       precisa_aprovacao_toni, tipo, destino, observacao, checkpoints, caso_relacionado_id,
       cadeia_responsabilidade, historico_linha_tempo, prazo_critico_cliente,
-      prazo_maximo_parceiro, financeiro_acerto_pendente, dependencia_externa)
+      prazo_maximo_parceiro, financeiro_acerto_pendente, dependencia_externa, arquivos)
     VALUES (@id, @origem, @canal, @formato_entrada, @entrada_bruta, @cliente, @contato, @cnpj,
       @segmento, @cidade, @resumo, @categoria, @produto_citado, @representada, @status, @pendencia,
       @bloqueio_atual, @proxima_acao, @responsavel, @prazo, @sensibilidade, @urgencia,
       @precisa_aprovacao_toni, @tipo, @destino, @observacao, @checkpoints, @caso_relacionado_id,
       @cadeia_responsabilidade, @historico_linha_tempo, @prazo_critico_cliente,
-      @prazo_maximo_parceiro, @financeiro_acerto_pendente, @dependencia_externa)
+      @prazo_maximo_parceiro, @financeiro_acerto_pendente, @dependencia_externa, @arquivos)
   `),
 
   getAll: db.prepare('SELECT * FROM rcas WHERE deleted = 0 ORDER BY data_criacao DESC'),
@@ -108,7 +127,8 @@ const stmts = {
       historico_linha_tempo = @historico_linha_tempo, prazo_critico_cliente = @prazo_critico_cliente,
       prazo_maximo_parceiro = @prazo_maximo_parceiro,
       financeiro_acerto_pendente = @financeiro_acerto_pendente,
-      dependencia_externa = @dependencia_externa
+      dependencia_externa = @dependencia_externa,
+      arquivos = @arquivos
     WHERE id = @id AND deleted = 0
   `),
 
@@ -117,6 +137,72 @@ const stmts = {
   stats: db.prepare(`
     SELECT status, COUNT(*) as count FROM rcas WHERE deleted = 0 GROUP BY status
   `),
+
+  // Client statements
+  searchClientes: db.prepare(`
+    SELECT * FROM clientes WHERE nome LIKE @q OR cidade LIKE @q OR cnpj LIKE @q
+    ORDER BY nome LIMIT 20
+  `),
+
+  getClienteById: db.prepare('SELECT * FROM clientes WHERE id = ?'),
+
+  countClientes: db.prepare('SELECT COUNT(*) as total FROM clientes'),
+
+  upsertCliente: db.prepare(`
+    INSERT INTO clientes (nome, cnpj, segmento, cidade, contato, telefone, status)
+    VALUES (@nome, @cnpj, @segmento, @cidade, @contato, @telefone, 'ativo')
+    ON CONFLICT DO NOTHING
+  `),
 };
 
-module.exports = { db, stmts };
+// ===================================================================
+// MERCOS import
+// ===================================================================
+function importFromMercos(filepath) {
+  const XLSX = require('xlsx');
+  const workbook = XLSX.readFile(filepath);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+  // MERCOS "Carteira detalhada de clientes" format:
+  // Row 7 = headers: [Razão Social, Nome fantasia, CNPJ/CPF, IE, Email, Telefone, Cidade, UF, ..., Segmento]
+  // Data starts at row 8
+  const headers = rows[7];
+  if (!headers) return { imported: 0, total: 0, error: 'Header row (7) not found' };
+
+  const colIndex = {};
+  headers.forEach((h, i) => { if (h) colIndex[h.trim()] = i; });
+
+  let imported = 0;
+  const insert = db.prepare(`
+    INSERT OR IGNORE INTO clientes (nome, cnpj, segmento, cidade, contato, telefone)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+
+  const tx = db.transaction(() => {
+    for (let i = 8; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || !r.length) continue;
+
+      const nome     = (r[colIndex['Nome fantasia']] || '').toString().trim();
+      const cnpj     = (r[colIndex['CNPJ/CPF']] || '').toString().trim();
+      const segmento = (r[colIndex['Segmento']] || '').toString().trim();
+      const cidade   = (r[colIndex['Cidade']] || '').toString().trim();
+      const uf       = (r[colIndex['Estado']] || '').toString().trim();
+      const email    = (r[colIndex['E-mail']] || '').toString().trim();
+      const telefone = (r[colIndex['Telefone']] || '').toString().trim();
+
+      if (nome) {
+        const cidadeFull = uf ? `${cidade}/${uf}` : cidade;
+        const contato = email || '';
+        insert.run(nome, cnpj, segmento, cidadeFull, contato, telefone);
+        imported++;
+      }
+    }
+  });
+
+  tx();
+  return { imported, total: rows.length - 8, headers: headers.filter(h => h) };
+}
+
+module.exports = { db, stmts, importFromMercos };

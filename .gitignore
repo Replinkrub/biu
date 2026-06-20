@@ -2,4 +2,5 @@ node_modules/
 biu.db
 biu.db-wal
 biu.db-shm
+uploads/
 .env
