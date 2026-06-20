@@ -303,11 +303,31 @@ let acTimer;
 function searchClientes(q){clearTimeout(acTimer);if(!q||q.length<2){document.getElementById('acDrop').classList.remove('show');return;}
   acTimer=setTimeout(()=>{fetch(`/api/clientes?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(rows=>{
     const d=document.getElementById('acDrop');if(!rows.length){d.classList.remove('show');return;}
-    d.innerHTML=rows.map(c=>`<div class="ac-item" onclick="selectCliente('${c.nome.replace(/'/g,"\\'")}','${c.cnpj||''}','${c.segmento||''}','${c.cidade||''}','${c.contato||''}')"><strong>${c.nome}</strong><small>${c.cidade||''} · ${c.segmento||''}</small></div>`).join('');
+    d.innerHTML=rows.map(c=>`<div class="ac-item" data-id="${c.id}" data-nome="${c.nome.replace(/"/g,'&quot;')}" data-cnpj="${c.cnpj||''}" data-segmento="${c.segmento||''}" data-cidade="${c.cidade||''}" data-contato="${c.contato||''}"><strong>${c.nome}</strong><small>${c.cidade||''} · ${c.segmento||''}</small></div>`).join('');
     d.classList.add('show');
+    // Event delegation on dropdown
+    d.querySelectorAll('.ac-item').forEach(el=>el.addEventListener('click',function(){
+      selectCliente(this.dataset.nome,this.dataset.cnpj,this.dataset.segmento,this.dataset.cidade,this.dataset.contato);
+    }));
   });},250);}
 function selectCliente(nome,cnpj,segmento,cidade,contato){document.getElementById('cliente').value=nome;document.getElementById('cnpj').value=cnpj;document.getElementById('segmento').value=segmento;document.getElementById('cidade').value=cidade;document.getElementById('contato').value=contato;document.getElementById('acDrop').classList.remove('show');}
 document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('acDrop').classList.remove('show');});
+
+// Auto-detect category from text
+function autoCategoria(){
+  const texto=(document.getElementById('entrada_bruta').value+' '+document.getElementById('resumo').value).toLowerCase();
+  const cat=document.getElementById('categoria');
+  if(!texto.trim())return;
+  if(/pedido|comprar|encomenda|digita|item|quantidade|produto/i.test(texto)) cat.value='pedido';
+  else if(/entrega|transportadora|rastreio|frete|mercadoria|saiu|trânsito/i.test(texto)) cat.value='logistica';
+  else if(/preço|valor|boleto|pagamento|parcela|crédito|financeiro|bonificação/i.test(texto)) cat.value='financeiro';
+  else if(/reclama|problema|não recebeu|atraso|falta|fudeu|quebrou/i.test(texto)) cat.value='reclamacao';
+  else if(/orçamento|cotação|prospect|lead|catálogo|oportunidade/i.test(texto)) cat.value='prospeccao';
+  else if(/decisão|autoriza|aprova|define/i.test(texto)) cat.value='decisao';
+  else cat.value='atendimento';
+}
+document.getElementById('entrada_bruta').addEventListener('blur',autoCategoria);
+document.getElementById('resumo').addEventListener('blur',autoCategoria);
 
 function handleFiles(files){if(!files?.length)return;for(const f of files){const fd=new FormData();fd.append('file',f);fetch('/api/upload',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{uploadedFiles.push(d);renderFiles();});}}
 function renderFiles(){document.getElementById('fileList').innerHTML=uploadedFiles.map((f,i)=>`<div class="file-tag">${f.mimetype?.startsWith('image/')?'🖼':f.mimetype?.startsWith('audio/')?'🎵':'📄'}<a href="${f.path}" target="_blank">${f.filename||f.path.split('/').pop()}</a><button onclick="uploadedFiles.splice(${i},1);renderFiles()">×</button></div>`).join('');}

@@ -223,9 +223,13 @@ app.listen(PORT, () => {
   // Auto-load MERCOS clientes on startup
   const result = autoLoadMercos(MERCOS_PATH);
   if (result.loaded) {
-    const total = result.files.reduce((s,f) => s + (f.imported||0), 0);
-    console.log(`[biu] MERCOS auto-load: ${result.files.length} arquivos, ${total} clientes importados`);
-    result.files.forEach(f => console.log(`  ${f.file}: ${f.imported||f.error||0}`));
+    if (result.skipped) {
+      console.log(`[biu] MERCOS auto-load: pulado — ${result.existing} clientes já na base`);
+    } else if (result.files) {
+      const total = result.files.reduce((s,f) => s + (f.imported||0), 0);
+      console.log(`[biu] MERCOS auto-load: ${result.files.length} arquivos, ${total} clientes importados`);
+      result.files.forEach(f => console.log(`  ${f.file}: ${f.imported||f.error||0}`));
+    }
   } else {
     console.log(`[biu] MERCOS path não encontrado: ${MERCOS_PATH}`);
   }

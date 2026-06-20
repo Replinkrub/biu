@@ -66,7 +66,8 @@ db.exec(`
     telefone TEXT,
     status TEXT DEFAULT 'ativo',
     origem TEXT DEFAULT 'MERCOS',
-    data_importacao TEXT DEFAULT (datetime('now','localtime'))
+    data_importacao TEXT DEFAULT (datetime('now','localtime')),
+    UNIQUE(cnpj, nome)
   );
 `);
 
@@ -250,6 +251,12 @@ function autoLoadMercos(mercospath) {
   if (!mercospath || !fs.existsSync(mercospath)) {
     console.log('[biu] MERCOS path not found:', mercospath);
     return { loaded: false, reason: 'path not found' };
+  }
+  // Skip if already have clients (avoid duplicates on restart)
+  const existing = db.prepare('SELECT COUNT(*) as c FROM clientes').get();
+  if (existing.c > 0) {
+    console.log(`[biu] Base já possui ${existing.c} clientes — pulando auto-load`);
+    return { loaded: true, path: mercospath, skipped: true, existing: existing.c };
   }
   const files = fs.readdirSync(mercospath).filter(f => /\.xlsx?$/i.test(f));
   const results = [];
