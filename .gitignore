@@ -4,3 +4,4 @@ biu.db-wal
 biu.db-shm
 uploads/
 .env
+biu.log
