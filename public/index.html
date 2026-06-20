@@ -3,41 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biu — Registro Comercial Assistido</title>
+  <title>Biu — Central de Operações</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e}
-    .container{max-width:1300px;margin:0 auto;padding:1rem}
-    header{background:#1a1a2e;color:#fff;padding:.8rem 0;margin-bottom:1rem}
-    header h1{font-size:1.3rem;display:flex;align-items:center;gap:.5rem}
-    header p{font-size:.78rem;opacity:.7}
+    .container{max-width:1300px;margin:0 auto;padding:.8rem}
+    header{background:#1a1a2e;color:#fff;padding:.6rem 0;margin-bottom:.6rem}
+    header .in{display:flex;justify-content:space-between;align-items:center;max-width:1300px;margin:0 auto;padding:0 .8rem}
+    header h1{font-size:1.2rem} header p{font-size:.72rem;opacity:.7}
 
-    .toolbar{display:flex;gap:.4rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:center}
-    .toolbar input,.toolbar select,.toolbar button{padding:.45rem .65rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem}
-    .toolbar input{flex:1;min-width:180px}
-    .toolbar button{background:#1a1a2e;color:#fff;cursor:pointer;border:none;white-space:nowrap}
-    .toolbar button:hover{background:#0f3460}
-    .toolbar button.primary{background:#0f3460;font-weight:600}
-    .toolbar button.import{background:#16213e}
+    /* Tabs */
+    .tabs{display:flex;gap:0;margin-bottom:.6rem;border-bottom:2px solid #ddd}
+    .tab{padding:.5rem 1rem;cursor:pointer;font-size:.85rem;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px}
+    .tab.active{border-bottom-color:#0f3460;font-weight:600;color:#0f3460}
+    .tab .n{background:#e8e8e8;border-radius:10px;padding:1px 7px;font-size:.7rem;margin-left:4px}
+    .tab.active .n{background:#0f3460;color:#fff}
 
-    .stats{display:flex;gap:.6rem;margin-bottom:.8rem;flex-wrap:wrap}
-    .stat{background:#fff;padding:.4rem .9rem;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:.85rem}
-    .stat b{font-size:1.1rem}
+    /* Cards */
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:.6rem;margin-bottom:.6rem}
+    .card{background:#fff;border-radius:8px;padding:.8rem;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;transition:transform .1s;border-left:4px solid #ddd}
+    .card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+    .card.urgente{border-left-color:#dc3545}
+    .card.alta{border-left-color:#fd7e14}
+    .card.bloqueado{border-left-color:#6f42c1}
+    .card .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.3rem}
+    .card .cliente{font-weight:600;font-size:.9rem}
+    .card .badge{font-size:.68rem;padding:2px 7px;border-radius:10px}
+    .card .resumo{font-size:.8rem;color:#555;margin-bottom:.3rem;line-height:1.3}
+    .card .meta{font-size:.72rem;color:#888;display:flex;gap:.8rem}
+    .card .meta span{display:flex;align-items:center;gap:3px}
 
-    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-    th,td{padding:.5rem .7rem;text-align:left;font-size:.82rem;border-bottom:1px solid #eee}
-    th{background:#f8f9fa;font-weight:600;position:sticky;top:0}
-    tr:hover{background:#f0f4ff}
-    .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.72rem}
-    .bg-rascunho{background:#ffeaa7;color:#7d6608}
-    .bg-validado,.bg-registrado{background:#d4edda;color:#155724}
-    .bg-descartado{background:#f5c6cb;color:#721c24}
-    .bg-em_espera,.bg-aguardando_toni{background:#e2e3e5;color:#383d41}
-    .actions-cell{white-space:nowrap}
-    .actions-cell button{padding:2px 7px;margin:1px;border-radius:4px;border:1px solid #ccc;cursor:pointer;font-size:.72rem;background:#fff}
-    .actions-cell button:hover{background:#eee}
+    .badge-r{background:#ffeaa7;color:#7d6608} .badge-v{background:#d4edda;color:#155724}
+    .badge-d{background:#f5c6cb;color:#721c24} .badge-e{background:#e2e3e5;color:#383d41}
+    .badge-a{background:#fff3cd;color:#856404}
 
-    /* Modal */
+    /* Toolbar */
+    .bar{display:flex;gap:.4rem;margin-bottom:.6rem;align-items:center;flex-wrap:wrap}
+    .bar button{padding:.45rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;border:none}
+    .bar .primary{background:#0f3460;color:#fff}
+    .bar .outline{background:#fff;border:1px solid #ccc}
+
+    /* Modal — same as before */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;justify-content:center;align-items:flex-start;padding-top:1rem;overflow-y:auto}
     .overlay.on{display:flex}
     .modal{background:#fff;border-radius:10px;padding:1.3rem;width:95%;max-width:780px;max-height:90vh;overflow-y:auto}
@@ -49,93 +55,65 @@
     .fg textarea{min-height:50px;resize:vertical}
     .btns{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.8rem}
     .btns button{padding:.45rem 1rem;border-radius:6px;cursor:pointer;font-size:.85rem;border:none}
-    .btns .save{background:#0f3460;color:#fff}
-    .btns .cancel{background:#eee;color:#333}
-    .btns .danger{background:#dc3545;color:#fff}
+    .btns .save{background:#0f3460;color:#fff} .btns .cancel{background:#eee;color:#333} .btns .danger{background:#dc3545;color:#fff}
 
-    /* Autocomplete */
-    .ac-wrap{position:relative}
-    .ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:0 0 6px 6px;max-height:180px;overflow-y:auto;z-index:10;display:none}
-    .ac-drop.show{display:block}
-    .ac-item{padding:.4rem .6rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid #eee}
-    .ac-item:hover{background:#f0f4ff}
-    .ac-item small{color:#888;display:block;font-size:.7rem}
-
-    /* File upload */
-    .upload-zone{border:2px dashed #ccc;border-radius:8px;padding:1rem;text-align:center;cursor:pointer;margin:.4rem 0;transition:.2s}
-    .upload-zone:hover,.upload-zone.dragover{border-color:#0f3460;background:#f0f4ff}
-    .upload-zone p{font-size:.8rem;color:#666}
+    .ac-wrap{position:relative} .ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-radius:0 0 6px 6px;max-height:180px;overflow-y:auto;z-index:10;display:none}
+    .ac-drop.show{display:block} .ac-item{padding:.4rem .6rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid #eee}
+    .ac-item:hover{background:#f0f4ff} .ac-item small{color:#888;display:block;font-size:.7rem}
+    .upload-zone{border:2px dashed #ccc;border-radius:8px;padding:1rem;text-align:center;cursor:pointer;margin:.4rem 0}
+    .upload-zone:hover{border-color:#0f3460;background:#f0f4ff}
     .file-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
     .file-tag{display:flex;align-items:center;gap:.3rem;background:#e8f0fe;padding:.2rem .5rem;border-radius:4px;font-size:.75rem}
-    .file-tag button{background:none;border:none;cursor:pointer;color:#dc3545;font-weight:bold;font-size:.9rem;line-height:1}
-    .file-tag img{width:16px;height:16px;object-fit:cover;border-radius:2px}
-    .empty{text-align:center;padding:3rem;color:#999}
+    .file-tag button{background:none;border:none;cursor:pointer;color:#dc3545;font-weight:bold}
+
+    /* Output section */
+    .output{background:#fff;border-radius:8px;padding:.8rem;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:.6rem}
+    .output h3{font-size:.9rem;margin-bottom:.4rem}
+    .output .row{font-size:.8rem;padding:.3rem 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
+    .empty{text-align:center;padding:2rem;color:#999;font-size:.85rem}
   </style>
 </head>
 <body>
 <header>
-  <div class="container">
-    <h1>📋 Biu — Registro Comercial Assistido</h1>
-    <p>Intake operacional · Upload de arquivos · Base de clientes integrada</p>
+  <div class="in">
+    <div><h1>📋 Biu</h1><p>Central de Operações · <span id="clientCount">0</span> clientes na base</p></div>
+    <button class="primary" onclick="openCreate()" style="background:#fff;color:#1a1a2e">+ Novo Registro</button>
   </div>
 </header>
 
 <div class="container">
-  <div class="stats" id="stats"></div>
-
-  <div class="toolbar">
-    <input type="text" id="search" placeholder="🔍 Buscar RCA..." oninput="loadRCAs()">
-    <select id="filterStatus" onchange="loadRCAs()">
-      <option value="">Status</option>
-      <option value="rascunho">Rascunho</option>
-      <option value="aguardando_toni">Aguardando Toni</option>
-      <option value="validado">Validado</option>
-      <option value="registrado">Registrado</option>
-      <option value="em_espera">Em espera</option>
-      <option value="descartado">Descartado</option>
-    </select>
-    <select id="filterCategoria" onchange="loadRCAs()">
-      <option value="">Categoria</option>
-      <option value="prospeccao">Prospecção</option>
-      <option value="pedido">Pedido</option>
-      <option value="logistica">Logística</option>
-      <option value="financeiro">Financeiro</option>
-      <option value="atendimento">Atendimento</option>
-      <option value="reclamacao">Reclamação</option>
-      <option value="decisao">Decisão</option>
-    </select>
-    <button class="primary" onclick="openCreate()">+ Novo RCA</button>
-    <button class="import" onclick="importClientes()">📥 Importar Clientes</button>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('pendentes')">📋 Pendentes <span class="n" id="nPendentes">0</span></button>
+    <button class="tab" onclick="switchTab('criticos')">🚨 Críticos <span class="n" id="nCriticos">0</span></button>
+    <button class="tab" onclick="switchTab('bloqueados')">🔒 Bloqueados <span class="n" id="nBloqueados">0</span></button>
+    <button class="tab" onclick="switchTab('hoje')">📅 Hoje <span class="n" id="nHoje">0</span></button>
+    <button class="tab" onclick="switchTab('output')">📤 Saídas <span class="n" id="nOutput">0</span></button>
   </div>
 
-  <table>
-    <thead><tr><th>Data</th><th>Cliente</th><th>Resumo</th><th>Cat</th><th>Status</th><th>Arq</th><th>Resp</th><th>Ações</th></tr></thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-  <div class="empty" id="emptyMsg" style="display:none">Nenhum RCA encontrado.</div>
+  <!-- Content area -->
+  <div id="content"></div>
 </div>
 
-<!-- Modal -->
+<!-- Modal (same structure as before) -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h2 id="modalTitle">Novo RCA</h2>
+    <h2 id="modalTitle">Novo Registro</h2>
     <form id="form" class="fg" onsubmit="return false">
       <input type="hidden" id="rcaId">
       <div><label>Origem *</label><input id="origem" required></div>
       <div><label>Canal *</label><input id="canal" required></div>
-      <div><label>Formato entrada</label><input id="formato_entrada"></div>
       <div class="ac-wrap">
-        <label>Cliente (buscar na base)</label>
-        <input id="cliente" placeholder="Digite para buscar..." autocomplete="off" oninput="searchClientes(this.value)" onfocus="searchClientes(this.value)">
+        <label>Cliente</label>
+        <input id="cliente" placeholder="Buscar na base..." autocomplete="off" oninput="searchClientes(this.value)" onfocus="searchClientes(this.value)">
         <div class="ac-drop" id="acDrop"></div>
       </div>
-      <input type="hidden" id="clienteId">
       <div><label>Contato</label><input id="contato"></div>
       <div><label>CNPJ</label><input id="cnpj"></div>
       <div><label>Segmento</label><input id="segmento"></div>
       <div><label>Cidade</label><input id="cidade"></div>
       <div><label>Representada</label><input id="representada"></div>
-      <div><label>Produto citado</label><input id="produto_citado"></div>
+      <div><label>Produto</label><input id="produto_citado"></div>
       <div class="fw"><label>Entrada bruta *</label><textarea id="entrada_bruta" rows="3" required></textarea></div>
       <div class="fw"><label>Resumo *</label><textarea id="resumo" rows="2" required></textarea></div>
       <div><label>Categoria *</label><select id="categoria" required><option value="atendimento">Atendimento</option><option value="prospeccao">Prospecção</option><option value="pedido">Pedido</option><option value="logistica">Logística</option><option value="financeiro">Financeiro</option><option value="reclamacao">Reclamação</option><option value="decisao">Decisão</option></select></div>
@@ -150,16 +128,12 @@
       <div><label><input type="checkbox" id="precisa_aprovacao_toni"> Aprovação Toni</label></div>
       <div><label>Caso relacionado</label><input id="caso_relacionado_id"></div>
       <div class="fw"><label>Pendência</label><textarea id="pendencia" rows="1"></textarea></div>
-      <div class="fw"><label>Bloqueio atual</label><textarea id="bloqueio_atual" rows="1"></textarea></div>
+      <div class="fw"><label>Bloqueio</label><textarea id="bloqueio_atual" rows="1"></textarea></div>
       <div class="fw"><label>Observação</label><textarea id="observacao" rows="2"></textarea></div>
-
-      <!-- File upload -->
       <div class="fw">
-        <label>📎 Arquivos (imagens, áudios, PDFs)</label>
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-          <p>📁 Clique ou arraste arquivos aqui</p>
-        </div>
-        <input type="file" id="fileInput" multiple hidden accept="image/*,audio/*,.pdf" onchange="handleFiles(this.files)">
+        <label>📎 Arquivos</label>
+        <div class="upload-zone" onclick="document.getElementById('fi').click()"><p>📁 Clique ou arraste</p></div>
+        <input type="file" id="fi" multiple hidden accept="image/*,audio/*,.pdf" onchange="handleFiles(this.files)">
         <div class="file-list" id="fileList"></div>
       </div>
     </form>
@@ -172,188 +146,124 @@
 </div>
 
 <script>
-const API = '/api/rcas';
-let uploadedFiles = [];
-
-// ==================== RCA CRUD ====================
+const API='/api/rcas';
+let uploadedFiles=[], currentTab='pendentes', dashboard={};
 
 function badge(s){
-  const m={rascunho:'bg-rascunho',validado:'bg-validado',registrado:'bg-registrado',descartado:'bg-descartado',em_espera:'bg-em_espera',aguardando_toni:'bg-aguardando_toni'};
+  const m={rascunho:'badge-r',validado:'badge-v',registrado:'badge-v',descartado:'badge-d',em_espera:'badge-e',aguardando_toni:'badge-a'};
   return `<span class="badge ${m[s]||''}">${(s||'').replace(/_/g,' ')}</span>`;
 }
 
-function loadRCAs(){
-  const q=document.getElementById('search').value;
-  const status=document.getElementById('filterStatus').value;
-  const categoria=document.getElementById('filterCategoria').value;
-  const p=new URLSearchParams();
-  if(q)p.set('q',q);if(status)p.set('status',status);if(categoria)p.set('categoria',categoria);
+function urgencyClass(u){return u==='alta'?'urgente':u==='media'?'alta':'';}
 
-  fetch(`${API}?${p}`).then(r=>r.json()).then(rows=>{
-    const tb=document.getElementById('tableBody'), em=document.getElementById('emptyMsg');
-    if(!rows.length){tb.innerHTML='';em.style.display='block';return;}
-    em.style.display='none';
-    tb.innerHTML=rows.map(r=>`<tr>
-      <td>${(r.data_criacao||'').slice(0,16)}</td>
-      <td>${r.cliente||'—'}</td>
-      <td>${(r.resumo||'').slice(0,55)}${r.resumo?.length>55?'…':''}</td>
-      <td>${r.categoria||''}</td>
-      <td>${badge(r.status)}</td>
-      <td>${(r.arquivos||[]).length?`📎${r.arquivos.length}`:'—'}</td>
-      <td>${r.responsavel||''}</td>
-      <td class="actions-cell">
-        <button onclick="openEdit('${r.id}')">✏️</button>
-        <button onclick="openView('${r.id}')">👁</button>
-      </td></tr>`).join('');
-  });
-  loadStats();
+// ============ Dashboard ============
+
+async function loadDashboard(){
+  const r=await fetch('/api/dashboard'); dashboard=await r.json();
+  document.getElementById('clientCount').textContent=dashboard.totalClientes||0;
+  document.getElementById('nPendentes').textContent=(dashboard.pendentes||[]).length;
+  document.getElementById('nCriticos').textContent=(dashboard.criticos||[]).length;
+  document.getElementById('nBloqueados').textContent=(dashboard.bloqueados||[]).length;
+  document.getElementById('nHoje').textContent=(dashboard.hoje||[]).length;
+  renderTab();
 }
 
-function loadStats(){
-  fetch('/api/stats').then(r=>r.json()).then(d=>{
-    document.getElementById('stats').innerHTML=`
-      <div class="stat">📋 <b>${d.totalRCAs||0}</b> RCAs</div>
-      <div class="stat">👥 <b>${d.totalClientes||0}</b> clientes</div>
-      ${(d.byStatus||[]).map(s=>`<div class="stat"><b>${s.count}</b> ${s.status.replace(/_/g,' ')}</div>`).join('')}`;
-  });
+function renderTab(){
+  let items=[],empty='Nada aqui.';
+  switch(currentTab){
+    case 'pendentes': items=dashboard.pendentes||[]; empty='Nenhum registro pendente.'; break;
+    case 'criticos': items=dashboard.criticos||[]; empty='Nenhum item crítico. ✅'; break;
+    case 'bloqueados': items=dashboard.bloqueados||[]; empty='Nenhum bloqueio ativo. ✅'; break;
+    case 'hoje': items=dashboard.hoje||[]; empty='Nada com prazo hoje.'; break;
+    case 'output': return renderOutput();
+    default: items=dashboard.pendentes||[];
+  }
+  const el=document.getElementById('content');
+  if(!items.length){el.innerHTML=`<div class="empty">${empty}</div>`;return;}
+  el.innerHTML=`<div class="cards">${items.map(r=>`
+    <div class="card ${urgencyClass(r.urgencia)} ${r.bloqueio_atual?'bloqueado':''}" onclick="openEdit('${r.id}')">
+      <div class="top"><span class="cliente">${r.cliente||'Sem cliente'}</span>${badge(r.status)}</div>
+      <div class="resumo">${(r.resumo||'').slice(0,120)}${r.resumo?.length>120?'…':''}</div>
+      <div class="meta">
+        <span>👤 ${r.responsavel||'—'}</span>
+        <span>📅 ${r.prazo||'—'}</span>
+        ${r.urgencia==='alta'?'<span>🔴 Urgente</span>':''}
+        ${r.precisa_aprovacao_toni?'<span>👑 Toni</span>':''}
+        ${r.arquivos?.length?`<span>📎 ${r.arquivos.length}</span>`:''}
+        ${r.bloqueio_atual?`<span>🔒 Bloqueado</span>`:''}
+      </div>
+    </div>`).join('')}</div>`;
 }
 
+async function renderOutput(){
+  const r=await fetch('/api/output'); const o=await r.json();
+  document.getElementById('nOutput').textContent=(o.demandas_tecnicas?.length||0)+(o.decisoes?.length||0);
+  let html='';
+  if(o.demandas_tecnicas?.length){
+    html+=`<div class="output"><h3>📤 Demandas Técnicas (handoff → Cockpit)</h3>`;
+    o.demandas_tecnicas.forEach(d=>html+=`<div class="row"><span><strong>${d.cliente||'—'}</strong> ${(d.resumo||'').slice(0,80)}</span><span>${badge(d.status)}</span></div>`);
+    html+=`</div>`;
+  }
+  if(o.decisoes?.length){
+    html+=`<div class="output"><h3>👑 Decisões para Toni</h3>`;
+    o.decisoes.forEach(d=>html+=`<div class="row"><span><strong>${d.cliente||'—'}</strong> ${(d.resumo||'').slice(0,80)}</span><span>${badge(d.status)}</span></div>`);
+    html+=`</div>`;
+  }
+  document.getElementById('content').innerHTML=html||'<div class="empty">Nenhuma saída pendente.</div>';
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.tab:nth-child(${{pendentes:1,criticos:2,bloqueados:3,hoje:4,output:5}[tab]})`).classList.add('active');
+  renderTab();
+}
+
+// ============ RCA Form ============
 function openCreate(){resetForm();document.getElementById('overlay').classList.add('on');}
 function closeModal(){document.getElementById('overlay').classList.remove('on');}
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-
 function resetForm(){
-  document.getElementById('form').reset();
-  document.getElementById('rcaId').value='';
-  document.getElementById('clienteId').value='';
-  document.getElementById('modalTitle').textContent='Novo RCA';
-  document.getElementById('btnDel').style.display='none';
-  uploadedFiles=[];renderFiles();
+  document.getElementById('form').reset();document.getElementById('rcaId').value='';
+  document.getElementById('modalTitle').textContent='Novo Registro';
+  document.getElementById('btnDel').style.display='none';uploadedFiles=[];renderFiles();
 }
-
-function openEdit(id){
-  fetch(`${API}/${id}`).then(r=>r.json()).then(rca=>{
-    document.getElementById('rcaId').value=rca.id;
-    document.getElementById('modalTitle').textContent=`Editar RCA · ${rca.cliente||'sem cliente'}`;
-    document.getElementById('btnDel').style.display='inline-block';
-    const fields=['origem','canal','formato_entrada','cliente','contato','cnpj','segmento','cidade','representada','produto_citado','entrada_bruta','resumo','proxima_acao','responsavel','destino','pendencia','bloqueio_atual','observacao','prazo','caso_relacionado_id'];
-    fields.forEach(f=>{const el=document.getElementById(f);if(el)el.value=rca[f]||'';});
-    document.getElementById('categoria').value=rca.categoria||'atendimento';
-    document.getElementById('status').value=rca.status||'rascunho';
-    document.getElementById('tipo').value=rca.tipo||'tarefa';
-    document.getElementById('sensibilidade').value=rca.sensibilidade||'media';
-    document.getElementById('urgencia').value=rca.urgencia||'media';
-    document.getElementById('precisa_aprovacao_toni').checked=rca.precisa_aprovacao_toni;
-    uploadedFiles=rca.arquivos||[];renderFiles();
-    document.getElementById('overlay').classList.add('on');
-  });
-}
-
-function openView(id){openEdit(id);}
-
+function openEdit(id){fetch(`${API}/${id}`).then(r=>r.json()).then(rca=>{
+  document.getElementById('rcaId').value=rca.id;document.getElementById('btnDel').style.display='inline-block';
+  document.getElementById('modalTitle').textContent=`Editar · ${rca.cliente||'sem cliente'}`;
+  ['origem','canal','cliente','contato','cnpj','segmento','cidade','representada','produto_citado','entrada_bruta','resumo','proxima_acao','responsavel','destino','pendencia','bloqueio_atual','observacao','prazo','caso_relacionado_id'].forEach(f=>{const el=document.getElementById(f);if(el)el.value=rca[f]||'';});
+  ['categoria','status','tipo','sensibilidade','urgencia'].forEach(f=>{const el=document.getElementById(f);if(el)el.value=rca[f]||'';});
+  document.getElementById('precisa_aprovacao_toni').checked=rca.precisa_aprovacao_toni;
+  uploadedFiles=rca.arquivos||[];renderFiles();
+  document.getElementById('overlay').classList.add('on');
+});}
 function getVal(id){return document.getElementById(id)?.value||'';}
-
 function saveRCA(){
   const id=document.getElementById('rcaId').value;
-  const body={
-    origem:getVal('origem'),canal:getVal('canal'),formato_entrada:getVal('formato_entrada'),
-    entrada_bruta:getVal('entrada_bruta'),cliente:getVal('cliente'),contato:getVal('contato'),
-    cnpj:getVal('cnpj'),segmento:getVal('segmento'),cidade:getVal('cidade'),
-    resumo:getVal('resumo'),categoria:getVal('categoria'),produto_citado:getVal('produto_citado'),
-    representada:getVal('representada'),status:getVal('status'),pendencia:getVal('pendencia'),
-    bloqueio_atual:getVal('bloqueio_atual'),proxima_acao:getVal('proxima_acao'),
-    responsavel:getVal('responsavel'),prazo:getVal('prazo'),sensibilidade:getVal('sensibilidade'),
-    urgencia:getVal('urgencia'),precisa_aprovacao_toni:document.getElementById('precisa_aprovacao_toni').checked,
-    tipo:getVal('tipo'),destino:getVal('destino'),observacao:getVal('observacao'),
-    caso_relacionado_id:getVal('caso_relacionado_id'),arquivos:uploadedFiles,
-  };
-  const method=id?'PUT':'POST',url=id?`${API}/${id}`:API;
-  fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(r=>r.ok?r.json():r.json().then(e=>Promise.reject(e)))
-    .then(()=>{closeModal();loadRCAs();})
-    .catch(err=>alert('Erro: '+(err.error||'Campos obrigatórios')));
+  const body={origem:getVal('origem'),canal:getVal('canal'),cliente:getVal('cliente'),contato:getVal('contato'),cnpj:getVal('cnpj'),segmento:getVal('segmento'),cidade:getVal('cidade'),entrada_bruta:getVal('entrada_bruta'),resumo:getVal('resumo'),categoria:getVal('categoria'),produto_citado:getVal('produto_citado'),representada:getVal('representada'),status:getVal('status'),pendencia:getVal('pendencia'),bloqueio_atual:getVal('bloqueio_atual'),proxima_acao:getVal('proxima_acao'),responsavel:getVal('responsavel'),prazo:getVal('prazo'),sensibilidade:getVal('sensibilidade'),urgencia:getVal('urgencia'),precisa_aprovacao_toni:document.getElementById('precisa_aprovacao_toni').checked,tipo:getVal('tipo'),destino:getVal('destino'),observacao:getVal('observacao'),caso_relacionado_id:getVal('caso_relacionado_id'),arquivos:uploadedFiles};
+  fetch(id?`${API}/${id}`:API,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.ok?r.json():r.json().then(e=>Promise.reject(e))).then(()=>{closeModal();loadDashboard();}).catch(err=>alert('Erro: '+(err.error||'Campos obrigatórios')));
 }
+function deleteRCA(){const id=document.getElementById('rcaId').value;if(!confirm('Arquivar?'))return;fetch(`${API}/${id}`,{method:'DELETE'}).then(()=>{closeModal();loadDashboard();});}
 
-function deleteRCA(){
-  const id=document.getElementById('rcaId').value;
-  if(!confirm('Arquivar este RCA?'))return;
-  fetch(`${API}/${id}`,{method:'DELETE'}).then(()=>{closeModal();loadRCAs();});
-}
-
-// ==================== Client Autocomplete ====================
-
+// Client autocomplete
 let acTimer;
-function searchClientes(q){
-  clearTimeout(acTimer);
-  if(!q||q.length<2){document.getElementById('acDrop').classList.remove('show');return;}
-  acTimer=setTimeout(()=>{
-    fetch(`/api/clientes?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(rows=>{
-      const drop=document.getElementById('acDrop');
-      if(!rows.length){drop.classList.remove('show');return;}
-      drop.innerHTML=rows.map(c=>`<div class="ac-item" onclick="selectCliente(${c.id},'${c.nome.replace(/'/g,"\\'")}','${c.cnpj||''}','${c.segmento||''}','${c.cidade||''}','${c.contato||''}')">
-        <strong>${c.nome}</strong>
-        <small>${c.cidade||''} · ${c.segmento||''} · ${c.cnpj||''}</small>
-      </div>`).join('');
-      drop.classList.add('show');
-    });
-  },250);
-}
-
-function selectCliente(id,nome,cnpj,segmento,cidade,contato){
-  document.getElementById('cliente').value=nome;
-  document.getElementById('clienteId').value=id;
-  document.getElementById('cnpj').value=cnpj;
-  document.getElementById('segmento').value=segmento;
-  document.getElementById('cidade').value=cidade;
-  document.getElementById('contato').value=contato;
-  document.getElementById('acDrop').classList.remove('show');
-}
-
-// Close autocomplete on outside click
+function searchClientes(q){clearTimeout(acTimer);if(!q||q.length<2){document.getElementById('acDrop').classList.remove('show');return;}
+  acTimer=setTimeout(()=>{fetch(`/api/clientes?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(rows=>{
+    const d=document.getElementById('acDrop');if(!rows.length){d.classList.remove('show');return;}
+    d.innerHTML=rows.map(c=>`<div class="ac-item" onclick="selectCliente('${c.nome.replace(/'/g,"\\'")}','${c.cnpj||''}','${c.segmento||''}','${c.cidade||''}','${c.contato||''}')"><strong>${c.nome}</strong><small>${c.cidade||''} · ${c.segmento||''}</small></div>`).join('');
+    d.classList.add('show');
+  });},250);}
+function selectCliente(nome,cnpj,segmento,cidade,contato){document.getElementById('cliente').value=nome;document.getElementById('cnpj').value=cnpj;document.getElementById('segmento').value=segmento;document.getElementById('cidade').value=cidade;document.getElementById('contato').value=contato;document.getElementById('acDrop').classList.remove('show');}
 document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('acDrop').classList.remove('show');});
 
-// ==================== File Upload ====================
+// Files
+function handleFiles(files){if(!files?.length)return;for(const f of files){const fd=new FormData();fd.append('file',f);fetch('/api/upload',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{uploadedFiles.push(d);renderFiles();});}}
+function renderFiles(){document.getElementById('fileList').innerHTML=uploadedFiles.map((f,i)=>`<div class="file-tag">${f.mimetype?.startsWith('image/')?'🖼':f.mimetype?.startsWith('audio/')?'🎵':'📄'}<a href="${f.path}" target="_blank">${f.filename||f.path.split('/').pop()}</a><button onclick="uploadedFiles.splice(${i},1);renderFiles()">×</button></div>`).join('');}
+const zone=document.querySelector('.upload-zone');if(zone){zone.addEventListener('dragover',e=>{e.preventDefault();});zone.addEventListener('drop',e=>{e.preventDefault();handleFiles(e.dataTransfer.files);});}
 
-function handleFiles(files){
-  if(!files||!files.length)return;
-  for(const f of files){
-    const fd=new FormData();fd.append('file',f);
-    fetch('/api/upload',{method:'POST',body:fd}).then(r=>r.json()).then(data=>{
-      uploadedFiles.push(data);renderFiles();
-    }).catch(()=>alert('Erro no upload de '+f.name));
-  }
-}
-
-function renderFiles(){
-  const el=document.getElementById('fileList');
-  el.innerHTML=uploadedFiles.map((f,i)=>`<div class="file-tag">
-    ${f.mimetype?.startsWith('image/')?`<img src="${f.path}" onerror="this.style.display='none'">`:''}
-    ${f.mimetype?.startsWith('audio/')?'🎵':f.mimetype?.startsWith('image/')?'🖼':'📄'}
-    <a href="${f.path}" target="_blank" style="font-size:.75rem">${f.filename||f.path?.split('/').pop()}</a>
-    <button onclick="uploadedFiles.splice(${i},1);renderFiles()">×</button>
-  </div>`).join('');
-}
-
-// Drag & drop
-const zone=document.getElementById('uploadZone');
-zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});
-zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
-zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');handleFiles(e.dataTransfer.files);});
-
-// ==================== Client Import ====================
-
-function importClientes(){
-  const path=prompt('Caminho da planilha MERCOS:\n\nEx: /home/arco/Empresas/REPLINK/REPLINK-CONTROL/context/arco/Arquivo Arco/Carteira detalhada de clientes.xlsx');
-  if(!path)return;
-  fetch('/api/clientes/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filepath:path})})
-    .then(r=>r.json()).then(d=>{
-      alert(`✅ ${d.imported} clientes importados de ${d.total} linhas.\nBase total: ${d.totalBase} clientes.`);
-      loadStats();
-    }).catch(err=>alert('❌ Erro: '+err.message));
-}
-
-// ==================== Init ====================
-loadRCAs();
+// Init
+loadDashboard();
+setInterval(loadDashboard,30000);
 </script>
 </body>
 </html>

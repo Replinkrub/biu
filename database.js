@@ -148,6 +148,42 @@ const stmts = {
 
   countClientes: db.prepare('SELECT COUNT(*) as total FROM clientes'),
 
+  // Dashboard queries
+  _dbPendentes: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND status NOT IN ('registrado','descartado')
+    ORDER BY CASE urgencia WHEN 'alta' THEN 0 WHEN 'media' THEN 1 ELSE 2 END, data_criacao DESC LIMIT 20
+  `),
+
+  _dbCriticos: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND (urgencia = 'alta' OR sensibilidade = 'alta')
+    AND status NOT IN ('registrado','descartado')
+    ORDER BY data_criacao DESC LIMIT 10
+  `),
+
+  _dbHoje: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND prazo = date('now','localtime')
+    AND status NOT IN ('registrado','descartado')
+    ORDER BY urgencia DESC
+  `),
+
+  _dbBloqueados: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND bloqueio_atual IS NOT NULL AND bloqueio_atual != ''
+    AND status NOT IN ('registrado','descartado')
+    ORDER BY data_criacao DESC LIMIT 10
+  `),
+
+  _dbDemandasTecnicas: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND tipo = 'demanda_tecnica'
+    AND status NOT IN ('registrado','descartado')
+    ORDER BY data_criacao DESC
+  `),
+
+  _dbDecisoes: db.prepare(`
+    SELECT * FROM rcas WHERE deleted = 0 AND (tipo = 'decisao' OR precisa_aprovacao_toni = 1)
+    AND status NOT IN ('registrado','descartado')
+    ORDER BY data_criacao DESC
+  `),
+
   upsertCliente: db.prepare(`
     INSERT INTO clientes (nome, cnpj, segmento, cidade, contato, telefone, status)
     VALUES (@nome, @cnpj, @segmento, @cidade, @contato, @telefone, 'ativo')
@@ -205,4 +241,28 @@ function importFromMercos(filepath) {
   return { imported, total: rows.length - 8, headers: headers.filter(h => h) };
 }
 
-module.exports = { db, stmts, importFromMercos };
+// ===================================================================
+// Auto-load MERCOS on startup
+// ===================================================================
+function autoLoadMercos(mercospath) {
+  const fs = require('fs');
+  const path = require('path');
+  if (!mercospath || !fs.existsSync(mercospath)) {
+    console.log('[biu] MERCOS path not found:', mercospath);
+    return { loaded: false, reason: 'path not found' };
+  }
+  const files = fs.readdirSync(mercospath).filter(f => /\.xlsx?$/i.test(f));
+  const results = [];
+  for (const file of files) {
+    const filepath = path.join(mercospath, file);
+    try {
+      const r = importFromMercos(filepath);
+      results.push({ file, ...r });
+    } catch (e) {
+      results.push({ file, error: e.message });
+    }
+  }
+  return { loaded: true, path: mercospath, files: results };
+}
+
+module.exports = { db, stmts, importFromMercos, autoLoadMercos };
